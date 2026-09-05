@@ -1,0 +1,123 @@
+{% extends "book_outlet/base.html" %}
+
+{% block title %}Books Catalog - Book Outlet{% endblock title %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-banner">
+    <div class="hero-header-content">
+        <div class="hero-tag">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Curated Selection
+        </div>
+        <h1 class="hero-title">Explore Exceptional Literature</h1>
+        <p class="hero-subtitle">Discover captivating reads, ratings, and bestsellers curated specially for book enthusiasts.</p>
+    </div>
+
+    <!-- Overview Stats Badges -->
+    <div class="hero-stats-container">
+        <div class="stat-card stat-card-books">
+            <div class="stat-icon stat-icon-books">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="stat-details">
+                <span class="stat-label">Total Number of Books</span>
+                <span class="stat-value-books">{{ no_of_books }}</span>
+                <span class="stat-subtext">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Active Collection
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card-rating">
+            <div class="stat-icon stat-icon-rating">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+            </div>
+            <div class="stat-details">
+                <span class="stat-label">Average Rating</span>
+                <div class="stat-value-rating">
+                    {% if average_rating.rating__avg %}
+                        {{ average_rating.rating__avg|floatformat:1 }}<span class="stat-max">/5</span>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <span class="stat-subtext">Exact: {{ average_rating.rating__avg|default:"N/A" }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Books Catalog Section -->
+<section>
+    <div class="section-header">
+        <h2 class="section-title">All Books</h2>
+        <span class="count-badge">{{ books|length }} Title{{ books|length|pluralize }}</span>
+    </div>
+
+    {% if books %}
+        <div class="book-grid">
+            {% for book in books %}
+                <div class="book-card">
+                    <div class="book-card-header">
+                        {% if book.is_bestSelling %}
+                            <div class="bestseller-badge">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                                Bestseller
+                            </div>
+                        {% endif %}
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="book-author">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            {{ book.author|default:"Unknown Author" }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <div class="rating-container">
+                            <div class="stars">
+                                {% if book.rating >= 1 %}★{% else %}<span class="star-empty">★</span>{% endif %}
+                                {% if book.rating >= 2 %}★{% else %}<span class="star-empty">★</span>{% endif %}
+                                {% if book.rating >= 3 %}★{% else %}<span class="star-empty">★</span>{% endif %}
+                                {% if book.rating >= 4 %}★{% else %}<span class="star-empty">★</span>{% endif %}
+                                {% if book.rating >= 5 %}★{% else %}<span class="star-empty">★</span>{% endif %}
+                            </div>
+                            <span class="rating-score">{{ book.rating }}/5</span>
+                        </div>
+
+                        <a href="{{ book.get_absolute_url }}" class="btn btn-primary card-link">
+                            View Details
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>No Books Available Yet</h3>
+            <p>Check back soon or add new books via the Django admin console.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock content %}
