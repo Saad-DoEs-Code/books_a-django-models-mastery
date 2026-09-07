@@ -9,7 +9,11 @@ class Book(models.Model):
     rating = models.IntegerField()
     author = models.CharField(null=True, max_length=100)
     is_bestSelling = models.BooleanField(default=False)
-    slug = models.SlugField(default="", null=False)
+    slug = models.SlugField(
+        default="",
+        null=False,
+        # blank=True,
+    )
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
