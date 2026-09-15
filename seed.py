@@ -1,13 +1,83 @@
 import os
 import django
 
+# Tell Django where the settings.py file is
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "books.settings")
+
+# Initialize Django
 django.setup()
 
-from books_outlet.models import Author, Book
+# NOW we can import our models
+from books_outlet.models import Address, Author, Book
 
 
 def seed_database():
+
+    # ==========================================================
+    # ADDRESSES
+    # ==========================================================
+
+    addresses_data = [
+        {
+            "street": "221B Baker Street",
+            "postal_code": "NW1 6XE",
+            "city": "London",
+        },
+        {
+            "street": "13 Victoria Street",
+            "postal_code": "W1H 1AW",
+            "city": "London",
+        },
+        {
+            "street": "Bag End",
+            "postal_code": "HOB 001",
+            "city": "Hobbiton",
+        },
+        {
+            "street": "42 Elm Street",
+            "postal_code": "10001",
+            "city": "New York",
+        },
+        {
+            "street": "15 Oak Avenue",
+            "postal_code": "60601",
+            "city": "Chicago",
+        },
+        {
+            "street": "27 High Street",
+            "postal_code": "OX1 1AA",
+            "city": "Oxford",
+        },
+        {
+            "street": "39 Peabody Street",
+            "postal_code": "MA 02130",
+            "city": "Boston",
+        },
+        {
+            "street": "10 Yasnaya Street",
+            "postal_code": "301000",
+            "city": "Tula",
+        },
+    ]
+
+    addresses = []
+
+    for address_data in addresses_data:
+
+        address, created = Address.objects.get_or_create(
+            street=address_data["street"],
+            postal_code=address_data["postal_code"],
+            city=address_data["city"],
+        )
+
+        addresses.append(address)
+
+        if created:
+            print(f"Created address: " f"{address.street}, {address.city}")
+
+    # ==========================================================
+    # AUTHORS
+    # ==========================================================
 
     authors_data = [
         ("J.K.", "Rowling"),
@@ -20,29 +90,29 @@ def seed_database():
         ("Leo", "Tolstoy"),
     ]
 
-    # -----------------------------------------------
-    # Create Authors
-    # -----------------------------------------------
-
     authors = {}
 
-    for first_name, last_name in authors_data:
+    for index, (first_name, last_name) in enumerate(authors_data):
 
         author, created = Author.objects.get_or_create(
             first_name=first_name,
             last_name=last_name,
+            defaults={
+                "address": addresses[index],
+            },
         )
+        if not author.address and index < len(addresses):
+            author.address = addresses[index]
+            author.save()
 
         authors[f"{first_name} {last_name}"] = author
 
         if created:
-            print(f"Created author: {first_name} {last_name}")
-        else:
-            print(f"Author already exists: {first_name} {last_name}")
+            print(f"Created author: " f"{author.first_name} {author.last_name}")
 
-    # -----------------------------------------------
-    # Create Books
-    # -----------------------------------------------
+    # ==========================================================
+    # BOOKS
+    # ==========================================================
 
     books_data = [
         (
@@ -121,23 +191,19 @@ def seed_database():
 
     for title, rating, author_name, is_best_selling in books_data:
 
-        author = authors[author_name]
-
         book, created = Book.objects.get_or_create(
             title=title,
             defaults={
                 "rating": rating,
-                "author": author,
+                "author": authors[author_name],
                 "is_bestSelling": is_best_selling,
             },
         )
 
         if created:
-            print(f"Created book: {title}")
-        else:
-            print(f"Book already exists: {title}")
+            print(f"Created book: {book.title}")
 
-    print("\nDatabase seeding completed!")
+    print("\nDatabase seeded successfully!")
 
 
 if __name__ == "__main__":
