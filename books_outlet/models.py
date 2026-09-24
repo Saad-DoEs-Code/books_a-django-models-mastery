@@ -2,7 +2,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
+
 # Create your models here.
+class Country(models.Model):
+    name = models.CharField(max_length=80)
+    code = models.CharField(max_length=3)
 
 
 class Address(models.Model):
@@ -35,6 +39,7 @@ class Book(models.Model):
     rating = models.IntegerField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     is_bestSelling = models.BooleanField(default=False)
+    counntries_published = models.ManyToManyField(Country, null=False)
     slug = models.SlugField(
         default="",
         null=False,
