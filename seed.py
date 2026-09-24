@@ -8,10 +8,73 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "books.settings")
 django.setup()
 
 # NOW we can import our models
-from books_outlet.models import Address, Author, Book
+from books_outlet.models import Country, Address, Author, Book
 
 
 def seed_database():
+
+    # ==========================================================
+    # COUNTRIES
+    # ==========================================================
+
+    countries_data = [
+        {
+            "name": "United Kingdom",
+            "code": "GB",
+        },
+        {
+            "name": "United States",
+            "code": "US",
+        },
+        {
+            "name": "Canada",
+            "code": "CA",
+        },
+        {
+            "name": "Australia",
+            "code": "AU",
+        },
+        {
+            "name": "Germany",
+            "code": "DE",
+        },
+        {
+            "name": "France",
+            "code": "FR",
+        },
+        {
+            "name": "India",
+            "code": "IN",
+        },
+        {
+            "name": "Japan",
+            "code": "JP",
+        },
+        {
+            "name": "Pakistan",
+            "code": "PK",
+        },
+        {
+            "name": "Russia",
+            "code": "RU",
+        },
+    ]
+
+    countries = {}
+
+    for country_data in countries_data:
+
+        country, created = Country.objects.get_or_create(
+            code=country_data["code"],
+            defaults={
+                "name": country_data["name"],
+            },
+        )
+
+        countries[country_data["name"]] = country
+
+        if created:
+            print(f"Created country: " f"{country.name} ({country.code})")
 
     # ==========================================================
     # ADDRESSES
@@ -101,6 +164,7 @@ def seed_database():
                 "address": addresses[index],
             },
         )
+
         if not author.address and index < len(addresses):
             author.address = addresses[index]
             author.save()
@@ -120,76 +184,94 @@ def seed_database():
             5,
             "J.K. Rowling",
             True,
+            ["United Kingdom", "United States", "Canada"],
         ),
         (
             "Harry Potter and the Chamber of Secrets",
             5,
             "J.K. Rowling",
             True,
+            ["United Kingdom", "United States", "Australia"],
         ),
         (
             "Harry Potter and the Prisoner of Azkaban",
             5,
             "J.K. Rowling",
             True,
+            ["United Kingdom", "United States", "Canada"],
         ),
         (
             "1984",
             5,
             "George Orwell",
             True,
+            ["United Kingdom", "United States", "Germany", "France"],
         ),
         (
             "Animal Farm",
             4,
             "George Orwell",
             True,
+            ["United Kingdom", "United States", "Canada"],
         ),
         (
             "The Hobbit",
             5,
             "J.R.R. Tolkien",
             True,
+            ["United Kingdom", "United States", "Australia"],
         ),
         (
             "The Lord of the Rings",
             5,
             "J.R.R. Tolkien",
             True,
+            ["United Kingdom", "United States", "Canada", "Australia"],
         ),
         (
             "To Kill a Mockingbird",
             5,
             "Harper Lee",
             True,
+            ["United States", "Canada", "United Kingdom"],
         ),
         (
             "The Great Gatsby",
             4,
             "F. Scott Fitzgerald",
             False,
+            ["United States", "United Kingdom", "France"],
         ),
         (
             "Pride and Prejudice",
             5,
             "Jane Austen",
             True,
+            ["United Kingdom", "United States", "Canada", "Australia"],
         ),
         (
             "The Old Man and the Sea",
             4,
             "Ernest Hemingway",
             False,
+            ["United States", "United Kingdom", "France"],
         ),
         (
             "War and Peace",
             5,
             "Leo Tolstoy",
             True,
+            ["Russia", "United States", "United Kingdom", "France"],
         ),
     ]
 
-    for title, rating, author_name, is_best_selling in books_data:
+    for (
+        title,
+        rating,
+        author_name,
+        is_best_selling,
+        published_countries,
+    ) in books_data:
 
         book, created = Book.objects.get_or_create(
             title=title,
@@ -198,6 +280,12 @@ def seed_database():
                 "author": authors[author_name],
                 "is_bestSelling": is_best_selling,
             },
+        )
+
+        # Many-to-Many relationships must be added
+        # after the Book instance has been saved.
+        book.counntries_published.set(
+            [countries[country_name] for country_name in published_countries]
         )
 
         if created:
