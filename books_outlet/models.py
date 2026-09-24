@@ -13,6 +13,9 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.street}, {self.city} ({self.postal_code})"
 
+    class Meta:
+        verbose_name_plural = "Address Entries"
+
 
 class Author(models.Model):
 
